@@ -1,0 +1,31 @@
+  services:
+    db:
+      image: postgres:16
+      environment:
+        POSTGRES_DB: magicfridge
+        POSTGRES_USER: magicfridge
+        POSTGRES_PASSWORD: senha_local
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U magicfridge -d magicfridge" ]
+        interval: 5s
+        timeout: 3s
+        retries: 10
+
+    app:
+      build: .
+      ports:
+        - "8080:8080"
+      env_file: .env
+      environment:
+        SPRING_PROFILES_ACTIVE: prod
+        DB_URL: jdbc:postgresql://db:5432/magicfridge
+        DB_USER: magicfridge
+        DB_PASSWORD: senha_local
+      depends_on:
+        db:
+          condition: service_healthy
+
+  volumes:
+    pgdata:
