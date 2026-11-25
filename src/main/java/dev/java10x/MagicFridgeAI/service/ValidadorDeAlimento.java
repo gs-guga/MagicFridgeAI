@@ -3,6 +3,7 @@ package dev.java10x.MagicFridgeAI.service;
 import dev.java10x.MagicFridgeAI.enums.Categoria;
 import dev.java10x.MagicFridgeAI.exception.AlimentoInvalidoException;
 import dev.java10x.MagicFridgeAI.exception.ValidacaoIndisponivelException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ValidadorDeAlimento {
 
@@ -58,8 +60,9 @@ public class ValidadorDeAlimento {
         try {
             resposta = gemini.perguntar(prompt).block(Duration.ofSeconds(40));
         } catch (Exception e) {
-            throw new ValidacaoIndisponivelException();
-        }
+        log.error("Erro ao consultar a API do Gemini para validar o alimento", e);
+        throw new ValidacaoIndisponivelException();
+    }
         return interpretar(resposta);
     }
 
